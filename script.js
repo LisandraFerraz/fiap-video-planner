@@ -1,10 +1,11 @@
+var videosGroupDiv = document.querySelector("#videos_group");
 var submitBtn = document.querySelector("#submit-btn");
 
 var keyword = "exo stages";
 
-var YT_API_KEY = "";
+var YT_API_KEY = "AIzaSyCN9hV48A_9ezBE8_PUs3io-GDiIWGlJLQ";
 var YT_BASE_URL = "https://www.googleapis.com/youtube/v3";
-var maxResults = 2;
+var maxResults = 5;
 
 var isLoading = false;
 
@@ -54,13 +55,13 @@ async function organizeVideoDetails() {
 
   if (videosList && videosList.length > 1) {
     videosList.map((video) => {
-      videosFiltered.find((item) => {
+      videosFiltered.filter((item) => {
         if (video.id.videoId === item.id) {
           videosDetails.push({
             id: video.id.videoId,
             publishedAt: video.snippet.publishedAt,
-            title: video.snippet.title,
-            thumbnail: video.snippet.thumbnails[2],
+            title: shortenTitle(video.snippet.title),
+            thumbnail: video.snippet.thumbnails.high.url,
             channelTitle: video.snippet.channelTitle,
             videoLength: formatTime(item.contentDetails.duration),
           });
@@ -70,7 +71,29 @@ async function organizeVideoDetails() {
 
     console.log(videosDetails);
   }
+  renderVideosThumb(videosDetails);
 }
+
+function renderVideosThumb(videosDetails = []) {
+  if (videosDetails && videosDetails.length > 0) {
+    videosDetails.forEach((video) => {
+      videosGroupDiv.innerHTML += `
+      <div class="video_template">
+          <h4>${video.title}</h4>
+          <div class="video_thumbnail">
+            <img
+              src="${video.thumbnail}"
+              alt="${video.title}"
+            />
+          <span class="video_duration">${video.videoLength}</span>
+          </div>
+        </div>
+      `;
+    });
+  }
+}
+
+// funcao adiciona tempo nos dias da semana
 
 function formatTime(time) {
   const match = time.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
@@ -84,6 +107,10 @@ function formatTime(time) {
   } else {
     return `${minutes}:${seconds}`;
   }
+}
+
+function shortenTitle(title) {
+  return title.length > 30 ? title.slice(0, 30) + "..." : title;
 }
 
 submitBtn.addEventListener("click", () => {

@@ -1,0 +1,20 @@
+:root {
+  /* fonts */
+  --font_lg: 2rem;
+  --font_md: 1.5rem;
+  --font_base: 1rem;
+  --font_sm: 0.8rem;
+
+  /* colors */
+  --white: #ffffff;
+  --greyish: #fef9ff;
+  --dark_blue: #2b2d42;
+  --yellow: #f5d491;
+  --salmon: #f9b9b7;
+  --red: #f06c9b;
+  --blue: #96c9dc;
+  --green: #61a0af;
+
+  /* shadows */
+  --shadow_sm: 0 0px 8px #0000001c;
+}
