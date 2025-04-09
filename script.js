@@ -1,13 +1,14 @@
 var videosGroupDiv = document.querySelector("#videos_group");
+var daysGroupDiv = document.querySelector("#days_group");
 var submitBtn = document.querySelector("#submit-btn");
 
 var keyword = "exo stages";
 
-var YT_API_KEY = "AIzaSyCN9hV48A_9ezBE8_PUs3io-GDiIWGlJLQ";
 var YT_BASE_URL = "https://www.googleapis.com/youtube/v3";
 var maxResults = 5;
 
 var isLoading = false;
+let days = [];
 
 // == FETCHES ==
 async function fetchSearchTerm() {
@@ -113,10 +114,73 @@ function shortenTitle(title) {
   return title.length > 30 ? title.slice(0, 30) + "..." : title;
 }
 
+function getNextDays() {
+  for (let i = 0; i <= 6; i++) {
+    days.push({
+      id: i + 1,
+      date: moment().add(i, "days").format("DD"),
+      weekDay: moment().add(i, "days").format("dddd"),
+      vidQty: 0,
+      videosList: [],
+    });
+  }
+  console.log(days);
+
+  days.forEach((day) => {
+    daysGroupDiv.innerHTML += `
+    <div class="day_box" id="${day.id}">
+    <div>
+      <span class="day_week">${translateDayPTBR(day.weekDay)}</span>
+    </div>
+    <div>
+      <span class="day_video">${
+        day.vidQty == 1 ? day.vidQty + " vídeo" : day.vidQty + " videos"
+      }</span>
+    </div>
+    <div>
+      <span class="day_name">${day.date}</span>
+    </div>
+  </div>
+`;
+  });
+}
+
+function translateDayPTBR(day = "") {
+  switch (day.toLowerCase()) {
+    case "sunday":
+      return "Domingo";
+    case "monday":
+      return "Segunda-Feira";
+    case "tuesday":
+      return "Terça-Feira";
+    case "wednesday":
+      return "Quarta-Feira";
+    case "thursday":
+      return "Quinta-Feira";
+    case "friday":
+      return "Sexta-Feira";
+    case "saturday":
+      return "Sábado";
+
+    default:
+      return "Não definido";
+  }
+}
+
+getNextDays();
+
 submitBtn.addEventListener("click", () => {
   if (keyword !== "") {
     organizeVideoDetails();
   } else {
     console.log("erro");
+  }
+});
+
+daysGroupDiv.addEventListener("click", (event) => {
+  const daySelected = event.target.closest(".day_box");
+
+  if (daySelected) {
+    daysGroupDiv.replaceChildren(daySelected);
   }
 });

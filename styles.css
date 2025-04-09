@@ -24,6 +24,9 @@ body {
   margin: 25px;
   padding: 15px 25px;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
   background-color: var(--white);
   box-shadow: var(--shadow_sm);
 }
