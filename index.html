@@ -9,14 +9,30 @@
       rel="stylesheet"
       href="//use.fontawesome.com/releases/v5.0.7/css/all.css"
     />
-    <script src="./script.js" defer></script>
+    <script src="./scripts/fetch-yt-api.js" defer></script>
+    <script src="./scripts/btn-events.js" defer></script>
+    <script src="./scripts/notification.js" defer></script>
+    <script src="./scripts/main.js" defer></script>
     <script src="./utils/_api-key.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
   </head>
   <body>
+    <div class="notification hidden" id="notification">
+      <span></span>
+    </div>
     <div class="wrapper">
-      <div>
-        <h2>Seu calendário de vídeos</h2>
+      <div class="calendar">
+        <span>
+          <button class="back_btn hidden">
+            <i class="fa fa-arrow-left"></i>
+          </button>
+          <h2 id="calendar_title">Seu calendário de vídeos</h2>
+        </span>
+        <p id="calendar_desc">
+          Selecione um dos 7 dias para verificar os vídeos selecionados com base
+          na sua disponibilidade.
+        </p>
+
         <div id="days_group"></div>
       </div>
 

@@ -31,6 +31,11 @@ body {
   box-shadow: var(--shadow_sm);
 }
 
+.wrapper > :first-child {
+  display: flex;
+  flex-direction: column;
+}
+
 .search_bar_group {
   width: 100%;
   position: relative;
@@ -120,14 +125,15 @@ body {
 
 .day_box {
   position: relative;
-  height: 120px;
+  height: 100%;
   background-color: var(--greyish);
   border-radius: 15px;
   border: 1px solid var(--green);
   display: flex;
   flex-direction: column;
+  gap: 10px;
   justify-content: space-between;
-  padding: 5px 10px;
+  padding: 10px;
 }
 
 .day_box > :nth-child(2) {
@@ -135,13 +141,80 @@ body {
   text-align: end;
 }
 
-.day_name {
+.avail_container {
+  font-size: calc(var(--font_base));
+  text-align: end;
+  margin-bottom: 25px;
+}
+
+.avail_minutes {
+  font-size: calc(var(--font_base) + 0.2rem);
+  border: 1px solid var(--dark_blue);
+  outline: none;
+  color: var(--dark_blue);
+  border-radius: 10px;
+  width: 80px;
+  height: 35px;
+  background-color: var(--greyish);
+}
+
+.fa-arrow-right {
+  cursor: pointer;
+}
+
+.day_number {
   position: absolute;
-  left: 10px;
+  left: 5px;
   bottom: -15px;
   margin: 0;
   padding: 0;
-  font-size: calc(var(--font_lg) + var(--font_lg));
+  font-size: calc(var(--font_lg) + var(--font_md));
+  letter-spacing: -15px;
   font-weight: 600;
   opacity: 40%;
+}
+
+.day_box > :last-child {
+  text-align: end;
+}
+
+.notification {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  width: 300px;
+  border-radius: 10px;
+  color: var(--dark_blue);
+  cursor: pointer;
+
+  background-color: var(--red);
+  padding: 15px;
+  z-index: 2;
+}
+
+.notification span {
+  text-wrap: pretty;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.shown {
+  display: block !important;
+}
+
+.calendar > :first-child {
+  display: flex;
+  gap: 15px;
+}
+
+.back_btn {
+  width: fit-content;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  font-size: var(--font_md);
+  opacity: 60%;
+  cursor: pointer;
 }
