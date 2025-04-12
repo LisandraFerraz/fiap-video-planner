@@ -3,6 +3,8 @@
 var notificationMsg = document.querySelector("#notification");
 var componentBody = document.querySelector("body");
 var videosGroupDiv = document.querySelector("#videos_group");
+var selectedDayVG = document.querySelector("#selected_day_videos_group");
+var videoSearchGroup = document.querySelector("#video_search_group");
 var daysGroupDiv = document.querySelector("#days_group");
 var submitBtn = document.querySelector("#submit-btn");
 var calendar = document.querySelector(".calendar");
@@ -41,91 +43,10 @@ async function organizeVideoDetails() {
     });
     addVideosToDays();
   }
-  renderVideosThumb(videosDetails);
+  renderVideosThumb(videosGroupDiv, videosDetails);
 }
 
-// é chamado no organizeVideoDetails() e cria uma lista com os vídeos encontrados
-function renderVideosThumb(videosDetails = []) {
-  if (videosDetails && videosDetails.length > 0) {
-    videosDetails.forEach((video) => {
-      videosGroupDiv.innerHTML += `
-      <div class="video_template">
-          <h4>${video.title}</h4>
-          <div class="video_thumbnail">
-            <img
-              src="${video.thumbnail}"
-              alt="${video.title}"
-            />
-          <span class="video_duration">${video.videoLength}</span>
-          </div>
-        </div>
-      `;
-    });
-  }
-}
-
-// Cria cards para os 7 dias
-function getNextDays() {
-  for (let i = 0; i <= 6; i++) {
-    days.push({
-      id: i + 1,
-      date: moment().add(i, "days").format("DD"),
-      weekDay: moment().add(i, "days").format("dddd"),
-      availMinutes: 0,
-      vidQty: 0,
-      videosList: [],
-    });
-  }
-
-  days.forEach((day) => {
-    daysGroupDiv.innerHTML += `
-    <div class="day_box" id="${day.id}">
-    <div>
-      <span class="day_week">${
-        day.id == 1
-          ? "Hoje (" + translateDayPTBR(day.weekDay) + ")"
-          : translateDayPTBR(day.weekDay)
-      }</span>
-    </div>
-    <div>
-      <span class="day_video">${
-        day.vidQty == 1 ? day.vidQty + " vídeo" : day.vidQty + " videos"
-      }</span>
-    </div>
-    <div class="avail_container">
-      <input class="avail_minutes" type="number" value="${day.availMinutes}" />
-      <span> minutos</span>
-    </div>
-    <div>
-      <span class="day_number">${day.date}</span>
-      <i class="fa fa-arrow-right"></i>
-    </div>
-  </div>
-`;
-  });
-}
-
-// Adiciona os videos do organizeVideoDetails() nos dias do getNextDays()
-function addVideosToDays() {
-  const daysWithVideos = days;
-  let videoIndex = 0;
-
-  for (let i = 0; i < daysWithVideos.length; i++) {
-    let availTime = daysWithVideos[i].availMinutes;
-    let videoTime = calcWatchTime(videosDetails[videoIndex]?.videoLength);
-
-    while (videoIndex < videosDetails?.length && videoTime < availTime) {
-      daysWithVideos[i].videosList.push(videosDetails[videoIndex]);
-
-      availTime -= videoTime;
-      videoIndex++;
-    }
-  }
-
-  console.log("Resultado atribuição | ", daysWithVideos);
-}
-
-// === FUNÇÕES DE FORMATAÇÃO ===
+// === FORMATAÇÕES ===
 
 // recebe videoLength de videosDetails e availMinutes de days
 // e verifica se videoLength <= availMinutes
@@ -194,37 +115,79 @@ function shortenTitle(title) {
   return title.length > 30 ? title.slice(0, 30) + "..." : title;
 }
 
-// === FIM FUNÇÕES DE FORMATAÇÃO ===
+// === ATUALIZAÇÕES DOS COMPONENTES ===
 
-// Pesquisar palavra-chave
-submitBtn.addEventListener("click", () => {
-  if (keyword !== "") {
-    organizeVideoDetails();
-  } else {
-    console.error("erro");
+// Primeira a ser executada. Cria próximos 7 dias, contando com o atual
+function getNextDays() {
+  for (let i = 0; i <= 6; i++) {
+    days.push({
+      id: i + 1,
+      date: moment().add(i, "days").format("DD"),
+      weekDay: moment().add(i, "days").format("dddd"),
+      availMinutes: 0,
+      vidQty: 0,
+      videosList: [],
+    });
   }
-});
-// Altera o conteudo da div "calendar" para o dia selecionado e template geral
-daysGroupDiv.addEventListener("click", (event) => {
-  const daySelected = event.target.closest(".fa-arrow-right");
 
-  if (daySelected) {
-    let day = daySelected.closest(".day_box");
+  renderDays();
+}
 
-    day.querySelector(".fa-arrow-right").classList.add("hidden");
-    calendarDesc.classList.add("hidden");
-    backBtn.classList.remove("hidden");
-    calendarTitle.textContent = "Conteúdo selecionado";
-    daysGroupDiv.replaceChildren(day);
+// Atualiza os cards de 7 dias
+function renderDays() {
+  const daysWeek = [...days];
+  daysGroupDiv.innerHTML = "";
+
+  daysWeek.forEach((day) => {
+    daysGroupDiv.innerHTML += `
+    <div class="day_box" id="${day.id}">
+    <div>
+      <span class="day_week">${
+        day.id == 1
+          ? "Hoje (" + translateDayPTBR(day.weekDay) + ")"
+          : translateDayPTBR(day.weekDay)
+      }</span>
+    </div>
+    <div>
+      <span class="day_video">${
+        day.vidQty == 1 ? day.vidQty + " vídeo" : day.vidQty + " videos"
+      }</span>
+    </div>
+    <div class="avail_container">
+      <input class="avail_minutes" type="number" value="${day.availMinutes}" />
+      <span> minutos</span>
+    </div>
+    <div>
+      <span class="day_number">${day.date}</span>
+      <i class="fa fa-arrow-right"></i>
+    </div>
+  </div>
+`;
+  });
+}
+
+// Atualiza grids de videos
+function renderVideosThumb(HTMLVidGroup, videosDetails = []) {
+  if (videosDetails && videosDetails.length > 0) {
+    HTMLVidGroup.innerHTML = "";
+    videosDetails.forEach((video) => {
+      HTMLVidGroup.innerHTML += `
+      <div class="video_template">
+          <h4>${video.title}</h4>
+          <div class="video_thumbnail">
+            <img
+              src="${video.thumbnail}"
+              alt="${video.title}"
+            />
+          <span class="video_duration">${video.videoLength}</span>
+          </div>
+        </div>
+      `;
+    });
   }
-});
+}
 
-// capturar valor dos inputs
-daysGroupDiv.addEventListener("change", (event) => {
-  const targetInput = event.target.closest(".avail_minutes");
-  updateDaysProps(event, "availMinutes", Number(targetInput.value));
-});
-
+// Atualiza o objeto days conforme seus atributos mudam
 function updateDaysProps(event, key, value) {
   const targetDay = event.target.closest(".day_box");
   const dayId = targetDay.id;
@@ -238,15 +201,78 @@ function updateDaysProps(event, key, value) {
     });
 
     days = daysUpdated;
-    console.log(days);
   }
 }
+// Adiciona os videos do organizeVideoDetails() nos dias do getNextDays()
+function addVideosToDays() {
+  const daysWithVideos = days;
+  let videoIndex = 0;
+
+  for (let i = 0; i < daysWithVideos.length; i++) {
+    let availTime = daysWithVideos[i].availMinutes * 60;
+    let videoTime = calcWatchTime(videosDetails[videoIndex]?.videoLength);
+
+    while (videoIndex < videosDetails?.length && videoTime < availTime) {
+      daysWithVideos[i].videosList.push(videosDetails[videoIndex]);
+      daysWithVideos[i].vidQty = daysWithVideos[i].videosList?.length;
+
+      availTime -= videoTime;
+      videoIndex++;
+    }
+  }
+  renderDays();
+}
+
+// === EVENTOS DE BOTÕES ===
+
+// Pesquisar palavra-chave
+submitBtn.addEventListener("click", () => {
+  if (keyword !== "") {
+    organizeVideoDetails();
+  } else {
+    console.error("erro");
+  }
+});
+
+// Altera o conteudo da div "calendar" para o dia selecionado e template geral
+daysGroupDiv.addEventListener("click", (event) => {
+  const daySelected = event.target.closest(".fa-arrow-right");
+  const targetDay = event.target.closest(".day_box");
+  const dayId = targetDay.id;
+
+  if (daySelected) {
+    let day = daySelected.closest(".day_box");
+
+    selectedDayVG.classList.remove("hidden");
+    videoSearchGroup.classList.add("hidden");
+    day.querySelector(".fa-arrow-right").classList.add("hidden");
+    calendarDesc.classList.add("hidden");
+    backBtn.classList.remove("hidden");
+
+    calendarTitle.textContent = "Conteúdo selecionado";
+    daysGroupDiv.replaceChildren(day);
+
+    const targetDay = days.find((day) => day.id === Number(dayId));
+    renderVideosThumb(selectedDayVG, targetDay.videosList);
+  }
+});
 
 // Altera o conteudo da div "calendar" para todos os dias e template original
 backBtn.addEventListener("click", () => {
+  videoSearchGroup.classList.remove("hidden");
   calendarDesc.classList.remove("hidden");
   backBtn.classList.add("hidden");
+  selectedDayVG.classList.add("hidden");
   calendarTitle.textContent = "Seu calendário de vídeos";
+
+  renderVideosThumb(videosGroupDiv, videosDetails);
+  renderDays();
+});
+
+// capturar valor dos inputs
+daysGroupDiv.addEventListener("change", (event) => {
+  const targetInput = event.target.closest(".avail_minutes");
+  updateDaysProps(event, "availMinutes", Number(targetInput.value));
 });
 
 // Fecha notificação ao clicar nela
@@ -254,5 +280,5 @@ notificationMsg.addEventListener("click", () => {
   setNotifDisplay("", "shown", "hidden");
 });
 
-// Inicia as funções
+// INICIO FUNÇÕES
 getNextDays();

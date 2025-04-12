@@ -66,12 +66,20 @@ body {
 }
 
 /* video grid */
-#videos_group {
+#videos_group,
+#selected_day_videos_group {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   /* grid-auto-columns: auto; */
   gap: 15px;
   margin: 25px 0;
+}
+
+#videos_group {
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+#selected_day_videos_group {
+  grid-template-columns: repeat(auto-fit, minmax(400px, 400px));
 }
 
 .video_template {
