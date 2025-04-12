@@ -39,8 +39,6 @@ async function organizeVideoDetails() {
         }
       });
     });
-
-    console.log(videosDetails);
     addVideosToDays();
   }
   renderVideosThumb(videosDetails);
@@ -73,7 +71,7 @@ function getNextDays() {
       id: i + 1,
       date: moment().add(i, "days").format("DD"),
       weekDay: moment().add(i, "days").format("dddd"),
-      avail_minutes: 5,
+      availMinutes: 0,
       vidQty: 0,
       videosList: [],
     });
@@ -95,34 +93,66 @@ function getNextDays() {
       }</span>
     </div>
     <div class="avail_container">
-      <input class="avail_minutes" type="number" value="${day.avail_minutes}" />
+      <input class="avail_minutes" type="number" value="${day.availMinutes}" />
       <span> minutos</span>
     </div>
     <div>
       <span class="day_number">${day.date}</span>
-      <i class="fa fa-arrow-right "></i>
+      <i class="fa fa-arrow-right"></i>
     </div>
   </div>
 `;
   });
-
-  console.log(days);
 }
 
 // Adiciona os videos do organizeVideoDetails() nos dias do getNextDays()
 function addVideosToDays() {
   const daysWithVideos = days;
+  let videoIndex = 0;
 
-  for (let i in daysWithVideos) {
-    if (videosDetails[i]) {
-      daysWithVideos[i].videosList = [videosDetails[i]];
+  for (let i = 0; i < daysWithVideos.length; i++) {
+    let availTime = daysWithVideos[i].availMinutes;
+    let videoTime = calcWatchTime(videosDetails[videoIndex]?.videoLength);
+
+    while (videoIndex < videosDetails?.length && videoTime < availTime) {
+      daysWithVideos[i].videosList.push(videosDetails[videoIndex]);
+
+      availTime -= videoTime;
+      videoIndex++;
     }
   }
 
-  console.log("daysWithVideos  ", daysWithVideos);
+  console.log("Resultado atribuição | ", daysWithVideos);
 }
 
 // === FUNÇÕES DE FORMATAÇÃO ===
+
+// recebe videoLength de videosDetails e availMinutes de days
+// e verifica se videoLength <= availMinutes
+function calcWatchTime(videoLength = "") {
+  // minutos
+  if (
+    videoLength.charAt(0) !== 0 &&
+    videoLength.charAt(1) !== 0 &&
+    videoLength.length === 5
+  ) {
+    const minToSecs = Number(videoLength.slice(0, 2)) * 60;
+    const secondsVideo = minToSecs + Number(videoLength.slice(3, 5));
+    return secondsVideo;
+  }
+  // horas
+  else if (videoLength.length === 8) {
+    const hoursToSecs = Number(videoLength.slice(0, 2)) * 3600;
+    const minsToSecs = Number(videoLength.slice(3, 5)) * 60;
+    const secondsVideo =
+      hoursToSecs + minsToSecs + Number(videoLength.slice(6, 8));
+    return secondsVideo;
+  }
+  //segundos
+  else {
+    return Number(videoLength.slice(3, 5));
+  }
+}
 
 function translateDayPTBR(day = "") {
   switch (day.toLowerCase()) {
@@ -171,15 +201,9 @@ submitBtn.addEventListener("click", () => {
   if (keyword !== "") {
     organizeVideoDetails();
   } else {
-    console.log("erro");
+    console.error("erro");
   }
 });
-
-// Fecha notificação ao clicar nela
-notificationMsg.addEventListener("click", () => {
-  setNotifDisplay("", "shown", "hidden");
-});
-
 // Altera o conteudo da div "calendar" para o dia selecionado e template geral
 daysGroupDiv.addEventListener("click", (event) => {
   const daySelected = event.target.closest(".fa-arrow-right");
@@ -195,11 +219,39 @@ daysGroupDiv.addEventListener("click", (event) => {
   }
 });
 
+// capturar valor dos inputs
+daysGroupDiv.addEventListener("change", (event) => {
+  const targetInput = event.target.closest(".avail_minutes");
+  updateDaysProps(event, "availMinutes", Number(targetInput.value));
+});
+
+function updateDaysProps(event, key, value) {
+  const targetDay = event.target.closest(".day_box");
+  const dayId = targetDay.id;
+
+  if (dayId && value) {
+    const daysUpdated = days.map((day) => {
+      return {
+        ...day,
+        [key]: day.id === Number(dayId) ? value : day[key],
+      };
+    });
+
+    days = daysUpdated;
+    console.log(days);
+  }
+}
+
 // Altera o conteudo da div "calendar" para todos os dias e template original
 backBtn.addEventListener("click", () => {
   calendarDesc.classList.remove("hidden");
   backBtn.classList.add("hidden");
   calendarTitle.textContent = "Seu calendário de vídeos";
+});
+
+// Fecha notificação ao clicar nela
+notificationMsg.addEventListener("click", () => {
+  setNotifDisplay("", "shown", "hidden");
 });
 
 // Inicia as funções
