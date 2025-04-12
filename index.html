@@ -16,27 +16,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
   </head>
   <body>
-    <div class="notification hidden" id="notification">
-      <span></span>
-    </div>
+    <div id="notification" class="hidden"></div>
     <div class="wrapper">
-      <div class="calendar">
-        <span>
-          <button class="back_btn hidden">
-            <i class="fa fa-arrow-left"></i>
-          </button>
-          <h2 id="calendar_title">Seu calendário de vídeos</h2>
-        </span>
-        <p id="calendar_desc">
-          Selecione um dos 7 dias para verificar os vídeos selecionados com base
-          na sua disponibilidade.
-        </p>
+      <div>
+        <button id="collapser">
+          <span>Próximos 7 dias</span>
+          <i class="fa fa-chevron-down"></i>
+        </button>
+        <div class="calendar">
+          <div>
+            <div class="calendar_header">
+              <div class="header_title">
+                <button class="back_btn hidden">
+                  <i class="fa fa-arrow-left"></i>
+                </button>
+                <h2 id="calendar_title">Seu calendário de vídeos</h2>
+              </div>
+            </div>
+            <p id="calendar_desc">
+              Selecione um dos 7 dias para verificar os vídeos filtrados com
+              base na sua disponibilidade.
+            </p>
 
-        <div id="days_group"></div>
-        <div id="selected_day_videos_group"></div>
+            <div class="carousel">
+              <div id="days_group"></div>
+            </div>
+          </div>
+          <span id="selected_day_desc" class="hidden"></span>
+          <div id="selected_day_videos_group" class="hidden"></div>
+        </div>
       </div>
 
+      <h2 class="prevent_search_msg">
+        Informe seu tempo disponível antes de procurar novos vídeos!
+      </h2>
+
       <div id="video_search_group">
+        <hr />
         <h2>Busque vídeos do seu interesse</h2>
         <div class="search_bar_group">
           <input

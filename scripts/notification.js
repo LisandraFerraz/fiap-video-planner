@@ -9,5 +9,5 @@ function createNotification(message = "") {
 
   setTimeout(() => {
     setNotifDisplay("", "shown", "hidden");
-  }, 6000);
+  }, 3000);
 }

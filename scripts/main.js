@@ -1,20 +1,30 @@
 // Guarda todos os seletores que sao usados globalmente
 
+// Seletores de textos
+var calendarDesc = document.querySelector("#calendar_desc");
+var calendarTitle = document.querySelector("#calendar_title");
+var preventSearchMsg = document.querySelector(".prevent_search_msg");
+var selectedDesc = document.querySelector("#selected_day_desc");
+
+// Seletores de grupos
 var notificationMsg = document.querySelector("#notification");
 var componentBody = document.querySelector("body");
 var videosGroupDiv = document.querySelector("#videos_group");
-var selectedDayVG = document.querySelector("#selected_day_videos_group");
 var videoSearchGroup = document.querySelector("#video_search_group");
+var selectedDayVG = document.querySelector("#selected_day_videos_group");
 var daysGroupDiv = document.querySelector("#days_group");
-var submitBtn = document.querySelector("#submit-btn");
 var calendar = document.querySelector(".calendar");
-var calendarDesc = document.querySelector("#calendar_desc");
-var backBtn = document.querySelector(".back_btn");
-var calendarTitle = document.querySelector("#calendar_title");
 
-const keyword = "exo stages";
+var searchBar = document.querySelector(".search_bar");
+
+// Seletores de botoes
+var submitBtn = document.querySelector("#submit-btn");
+var backBtn = document.querySelector(".back_btn");
+var collapseBtn = document.querySelector("#collapser");
+
+let keyword = "";
 const YT_BASE_URL = "https://www.googleapis.com/youtube/v3";
-var maxResults = 5;
+const maxResults = 5;
 
 let isLoading = false;
 let days = [];
@@ -44,6 +54,7 @@ async function organizeVideoDetails() {
     addVideosToDays();
   }
   renderVideosThumb(videosGroupDiv, videosDetails);
+  collapseCalendar();
 }
 
 // === FORMATAÇÕES ===
@@ -119,6 +130,8 @@ function shortenTitle(title) {
 
 // Primeira a ser executada. Cria próximos 7 dias, contando com o atual
 function getNextDays() {
+  videoSearchGroup.classList.add("hidden");
+
   for (let i = 0; i <= 6; i++) {
     days.push({
       id: i + 1,
@@ -141,27 +154,39 @@ function renderDays() {
   daysWeek.forEach((day) => {
     daysGroupDiv.innerHTML += `
     <div class="day_box" id="${day.id}">
-    <div>
-      <span class="day_week">${
-        day.id == 1
-          ? "Hoje (" + translateDayPTBR(day.weekDay) + ")"
-          : translateDayPTBR(day.weekDay)
-      }</span>
+      <div class="calendar_header"> 
+        <div>
+          <span class="day_week">
+          ${
+            day.id == 1
+              ? "Hoje (" + translateDayPTBR(day.weekDay) + ")"
+              : translateDayPTBR(day.weekDay)
+          }</span>
+          <i class="fa fa-arrow-right"></i>
+        </div>
+        <div>
+          <span class="day_number">${day.date}</span>
+        </div>
     </div>
-    <div>
-      <span class="day_video">${
-        day.vidQty == 1 ? day.vidQty + " vídeo" : day.vidQty + " videos"
-      }</span>
+    
+      <div class="avail_container">
+       <div>
+         <input class="avail_minutes" type="number" value="${
+           day.availMinutes
+         }" />
+        <span> minutos disponíveis.</span>
+       </div>
+        <section class="day_vids_list">
+          ${day.videosList.map(
+            (video) =>
+              `
+              <h4>${video.videoLength}</h4>
+              <span>${video.title}</span>
+              `
+          )}
+        </section>
+      </div>
     </div>
-    <div class="avail_container">
-      <input class="avail_minutes" type="number" value="${day.availMinutes}" />
-      <span> minutos</span>
-    </div>
-    <div>
-      <span class="day_number">${day.date}</span>
-      <i class="fa fa-arrow-right"></i>
-    </div>
-  </div>
 `;
   });
 }
@@ -192,7 +217,7 @@ function updateDaysProps(event, key, value) {
   const targetDay = event.target.closest(".day_box");
   const dayId = targetDay.id;
 
-  if (dayId && value) {
+  if (dayId && value !== null) {
     const daysUpdated = days.map((day) => {
       return {
         ...day,
@@ -203,6 +228,7 @@ function updateDaysProps(event, key, value) {
     days = daysUpdated;
   }
 }
+
 // Adiciona os videos do organizeVideoDetails() nos dias do getNextDays()
 function addVideosToDays() {
   const daysWithVideos = days;
@@ -223,37 +249,68 @@ function addVideosToDays() {
   renderDays();
 }
 
-// === EVENTOS DE BOTÕES ===
+// Collapser do calendário
+function collapseCalendar() {
+  if (calendar.classList.contains("collapsed")) {
+    calendar.style.height = calendar.scrollHeight + "px";
+    calendar.classList.remove("collapsed");
+  } else {
+    calendar.classList.add("collapsed");
+    calendar.style.height = calendar.scrollHeight + "px";
+
+    //aguarda o height
+    requestAnimationFrame(() => {
+      calendar.style.height = "0px";
+    });
+  }
+}
+
+// === EVENTOS DE INPUT ===
+
+searchBar.addEventListener("change", (event) => {
+  keyword = event.target.value;
+});
 
 // Pesquisar palavra-chave
 submitBtn.addEventListener("click", () => {
   if (keyword !== "") {
     organizeVideoDetails();
   } else {
-    console.error("erro");
+    createNotification("Preencha o campo de pesquisa.");
   }
 });
 
 // Altera o conteudo da div "calendar" para o dia selecionado e template geral
 daysGroupDiv.addEventListener("click", (event) => {
+  calendar.style.height = "auto";
   const daySelected = event.target.closest(".fa-arrow-right");
   const targetDay = event.target.closest(".day_box");
-  const dayId = targetDay.id;
 
-  if (daySelected) {
-    let day = daySelected.closest(".day_box");
+  if (targetDay) {
+    const dayId = targetDay.id;
+    const dayFocus = days.find((day) => day.id === Number(dayId));
 
-    selectedDayVG.classList.remove("hidden");
-    videoSearchGroup.classList.add("hidden");
-    day.querySelector(".fa-arrow-right").classList.add("hidden");
-    calendarDesc.classList.add("hidden");
-    backBtn.classList.remove("hidden");
+    if (daySelected && dayFocus.videosList?.length > 0) {
+      let day = daySelected.closest(".day_box");
 
-    calendarTitle.textContent = "Conteúdo selecionado";
-    daysGroupDiv.replaceChildren(day);
+      selectedDesc.classList.remove("hidden");
+      selectedDayVG.classList.remove("hidden");
 
-    const targetDay = days.find((day) => day.id === Number(dayId));
-    renderVideosThumb(selectedDayVG, targetDay.videosList);
+      targetDay.classList.add("hidden");
+      videoSearchGroup.classList.add("hidden");
+      calendarDesc.classList.add("hidden");
+      day.querySelector(".fa-arrow-right").classList.add("hidden");
+      backBtn.classList.remove("hidden");
+
+      selectedDesc.textContent =
+        "Confira a seleção de vídeos escolhidos com base nos resultados da pesquisa e sua disponibilidade para esse dia.";
+      calendarTitle.textContent = `${dayFocus.date}, ${translateDayPTBR(
+        dayFocus.weekDay
+      )} `;
+
+      daysGroupDiv.replaceChildren(day);
+      renderVideosThumb(selectedDayVG, dayFocus.videosList);
+    }
   }
 });
 
@@ -261,8 +318,11 @@ daysGroupDiv.addEventListener("click", (event) => {
 backBtn.addEventListener("click", () => {
   videoSearchGroup.classList.remove("hidden");
   calendarDesc.classList.remove("hidden");
+
+  selectedDesc.classList.add("hidden");
   backBtn.classList.add("hidden");
   selectedDayVG.classList.add("hidden");
+
   calendarTitle.textContent = "Seu calendário de vídeos";
 
   renderVideosThumb(videosGroupDiv, videosDetails);
@@ -272,12 +332,26 @@ backBtn.addEventListener("click", () => {
 // capturar valor dos inputs
 daysGroupDiv.addEventListener("change", (event) => {
   const targetInput = event.target.closest(".avail_minutes");
+
   updateDaysProps(event, "availMinutes", Number(targetInput.value));
+
+  const allUnavailable = days.every((day) => Number(day.availMinutes) === 0);
+  if (!allUnavailable) {
+    preventSearchMsg.classList.add("hidden");
+    videoSearchGroup.classList.remove("hidden");
+  } else {
+    preventSearchMsg.classList.remove("hidden");
+    videoSearchGroup.classList.add("hidden");
+  }
 });
 
 // Fecha notificação ao clicar nela
 notificationMsg.addEventListener("click", () => {
   setNotifDisplay("", "shown", "hidden");
+});
+
+collapseBtn.addEventListener("click", () => {
+  collapseCalendar();
 });
 
 // INICIO FUNÇÕES

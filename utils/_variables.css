@@ -10,11 +10,17 @@
   --greyish: #fef9ff;
   --dark_blue: #2b2d42;
   --yellow: #f5d491;
-  --salmon: #f9b9b7;
+  --salmon: #f78764;
   --red: #f06c9b;
   --blue: #96c9dc;
   --green: #61a0af;
 
+  --pink: #da4167;
+  --dark-blue: #083d77;
+  --dark-yellow: #f4d35e;
+
   /* shadows */
   --shadow_sm: 0 0px 8px #0000001c;
+
+  --transition-short: ease-out 0.2s;
 }
