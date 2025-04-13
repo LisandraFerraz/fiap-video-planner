@@ -19,3 +19,4 @@ O objetivo é organizar os vídeos encontrados após pesquisa por palavra-chave 
    const YT_API_KEY = "SUA_CHAVE_DE_ACESSO"
    ```
 5. Instale a extensão "Live Server" para o VSCode (ou a IDE que estiver usando);
+6. Ative a extensão e teste o projeto.
