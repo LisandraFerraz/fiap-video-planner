@@ -106,16 +106,15 @@ input[type="number"] {
 #selected_day_videos_group {
   display: grid;
   grid-auto-columns: auto;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 15px;
 }
 
 #videos_group {
   margin: 25px 0;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
 }
 
 #selected_day_videos_group {
-  grid-template-columns: repeat(auto-fit, minmax(400px, 400px));
   margin-bottom: 15px;
 }
 
