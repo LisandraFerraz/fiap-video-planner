@@ -28,8 +28,8 @@ input[type="number"] {
 }
 
 *::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 8px;
 }
 
 *::-webkit-scrollbar-track {
@@ -278,11 +278,6 @@ h4 {
 }
 
 .day_number {
-  /* position: absolute; */
-  /* left: 5px;
-  bottom: -15px;
-  margin: 0;
-  padding: 0; */
   font-size: calc(var(--font_lg) + var(--font_md));
   letter-spacing: -15px;
   font-weight: 600;
@@ -354,11 +349,6 @@ hr {
 .calendar > * {
   padding: 10px 25px;
 }
-
-/* .calendar > :first-child {
-  display: flex;
-  gap: 15px;
-} */
 
 .back_btn {
   width: fit-content;

@@ -24,7 +24,7 @@ var collapseBtn = document.querySelector("#collapser");
 
 let keyword = "";
 const YT_BASE_URL = "https://www.googleapis.com/youtube/v3";
-const maxResults = 5;
+const maxResults = 20;
 
 let isLoading = false;
 let days = [];
@@ -54,35 +54,25 @@ async function organizeVideoDetails() {
     addVideosToDays();
   }
   renderVideosThumb(videosGroupDiv, videosDetails);
-  collapseCalendar();
+  // collapseCalendar();
 }
 
 // === FORMATAÇÕES ===
 
-// recebe videoLength de videosDetails e availMinutes de days
-// e verifica se videoLength <= availMinutes
+// transforma minutos/horas em segundos ou retorna somente segundos
 function calcWatchTime(videoLength = "") {
-  // minutos
-  if (
-    videoLength.charAt(0) !== 0 &&
-    videoLength.charAt(1) !== 0 &&
-    videoLength.length === 5
-  ) {
-    const minToSecs = Number(videoLength.slice(0, 2)) * 60;
-    const secondsVideo = minToSecs + Number(videoLength.slice(3, 5));
-    return secondsVideo;
-  }
-  // horas
-  else if (videoLength.length === 8) {
-    const hoursToSecs = Number(videoLength.slice(0, 2)) * 3600;
-    const minsToSecs = Number(videoLength.slice(3, 5)) * 60;
-    const secondsVideo =
-      hoursToSecs + minsToSecs + Number(videoLength.slice(6, 8));
-    return secondsVideo;
-  }
-  //segundos
-  else {
-    return Number(videoLength.slice(3, 5));
+  const timeSplit = videoLength.split(":").map(Number);
+
+  if (timeSplit.length === 3) {
+    // hh:mm:ss
+    const [h, m, s] = timeSplit;
+    return h * 3600 + m * 60 + s;
+  } else if (timeSplit.length === 2) {
+    // mm:ss
+    const [m, s] = timeSplit;
+    return m * 60 + s;
+  } else {
+    return 0;
   }
 }
 
@@ -230,23 +220,29 @@ function updateDaysProps(event, key, value) {
 }
 
 // Adiciona os videos do organizeVideoDetails() nos dias do getNextDays()
+
 function addVideosToDays() {
-  const daysWithVideos = days;
+  const daysWithVideos = [...days];
   let videoIndex = 0;
 
   for (let i = 0; i < daysWithVideos.length; i++) {
     let availTime = daysWithVideos[i].availMinutes * 60;
-    let videoTime = calcWatchTime(videosDetails[videoIndex]?.videoLength);
 
-    while (videoIndex < videosDetails?.length && videoTime < availTime) {
+    const videoTime = calcWatchTime(videosDetails[videoIndex]?.videoLength);
+
+    if (videoTime < availTime) {
+      videoIndex++;
+
       daysWithVideos[i].videosList.push(videosDetails[videoIndex]);
       daysWithVideos[i].vidQty = daysWithVideos[i].videosList?.length;
 
       availTime -= videoTime;
-      videoIndex++;
     }
   }
+
   renderDays();
+  console.log("Resultado atribuição | ", daysWithVideos);
+  console.log("videosDetails | ", videosDetails);
 }
 
 // Collapser do calendário
